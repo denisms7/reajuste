@@ -45,6 +45,24 @@ df_filtrado = df.loc[
 # -------------------------------------------------
 # Exibir dados tratados (com formatação visual)
 # -------------------------------------------------
+st.sidebar.subheader("🎯 Filtros")
+
+opcoes_descricao = ["Todos Dados"] + sorted(
+    df_filtrado["Descricao"].dropna().unique().tolist()
+)
+
+descricao_selecionada = st.sidebar.selectbox(
+    "Descrição",
+    options=opcoes_descricao,
+    index=0
+)
+
+if descricao_selecionada != "Todos Dados":
+    df_filtrado = df_filtrado[
+        df_filtrado["Descricao"] == descricao_selecionada
+    ]
+
+
 st.subheader("📄 Dados tratados")
 
 st.dataframe(
