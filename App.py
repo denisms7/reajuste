@@ -39,13 +39,13 @@ df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 # Filtrar período
 # -------------------------------------------------
 df_filtrado = df.loc[
-    (df["Ano"] >= 2020) & (df["Ano"] <= 2025)
+    (df["Ano"] >= 2019) & (df["Ano"] <= 2025)
 ]
 
 # -------------------------------------------------
 # Exibir dados tratados (com formatação visual)
 # -------------------------------------------------
-st.subheader("📄 Dados tratados (2020–2025)")
+st.subheader("📄 Dados tratados")
 
 st.dataframe(
     df_filtrado,
@@ -82,7 +82,8 @@ fig_bar = px.bar(
     y="Valor",
     color="Descricao",
     text_auto=".2f",
-    title="Soma dos Reajustes Salariais (2020–2025)",
+    title="Acumulados dos Reajustes",
+    subtitle="IPCA - 2019 a 2025<br>Salarios 2020 a 2025",
 )
 
 fig_bar.update_layout(
@@ -114,6 +115,7 @@ fig_linhas = px.line(
     color="Descricao",
     markers=True,
     title="Evolução dos Reajustes (2020–2025)",
+    subtitle="IPCA - 2019 a 2025<br>Salarios 2020 a 2025",
 )
 
 fig_linhas.update_layout(
