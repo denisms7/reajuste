@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 st.title("📊 Reajustes Salarial")
-st.write("Aplicação de análise de dados salarial regional")
+st.write("Análise de dados salarial regional")
 
 # Carregar dados
 df = pd.read_excel("data/dados.xlsx")
