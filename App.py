@@ -2,40 +2,73 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# -------------------------------------------------
+# Configuração da página
+# -------------------------------------------------
 st.set_page_config(
-    page_title="Reajustes Salarial",
+    page_title="Reajustes Salariais",
     page_icon="🧑🏻‍💼",
     layout="wide"
 )
 
-st.title("📊 Reajustes Salarial")
+st.title("📊 Reajustes Salariais")
 st.write("Análise de dados salarial regional")
 
+# -------------------------------------------------
 # Carregar dados
+# -------------------------------------------------
 df = pd.read_excel("data/dados.xlsx")
 
-# Garantir string
+# -------------------------------------------------
+# Tratamento da coluna Valor (SEM arredondar dados)
+# -------------------------------------------------
 df["Valor"] = df["Valor"].astype(str)
 
-# Limpeza de porcentagem
 df["Valor"] = (
     df["Valor"]
     .str.replace("%", "", regex=False)
     .str.replace(",", ".", regex=False)
 )
 
-# Converter para float
-df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce")
+df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
 
-# Filtrar anos
+# Garantir tipo correto do ano
+df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
+
+# -------------------------------------------------
+# Filtrar período
+# -------------------------------------------------
 df_filtrado = df.loc[
     (df["Ano"] >= 2020) & (df["Ano"] <= 2025)
 ]
 
+# -------------------------------------------------
+# Exibir dados tratados (com formatação visual)
+# -------------------------------------------------
 st.subheader("📄 Dados tratados (2020–2025)")
-st.dataframe(df_filtrado)
 
-# Agrupar
+st.dataframe(
+    df_filtrado,
+    column_config={
+        "Valor": st.column_config.NumberColumn(
+            "Valor (%)",
+            format="%.2f"
+        ),
+        "Fonte": st.column_config.LinkColumn(
+            "Fonte",
+            display_text="🔗 Abrir"
+        ),
+        "Outros": st.column_config.LinkColumn(
+            "Outros",
+            display_text="📄 Documento"
+        ),
+    },
+    use_container_width=True,
+)
+
+# -------------------------------------------------
+# Gráfico de barras (soma por descrição)
+# -------------------------------------------------
 df_agrupado = (
     df_filtrado
     .groupby("Descricao", as_index=False)["Valor"]
@@ -43,35 +76,39 @@ df_agrupado = (
     .sort_values(by="Valor", ascending=False)
 )
 
-# Gráfico
-fig = px.bar(
+fig_bar = px.bar(
     df_agrupado,
     x="Descricao",
     y="Valor",
     color="Descricao",
     text_auto=".2f",
-    title="Porcentagem (2020–2025)",
-    subtitle="Soma dos reajustes salariais",
+    title="Soma dos Reajustes Salariais (2020–2025)",
 )
 
-fig.update_layout(
+fig_bar.update_layout(
     xaxis_title="Descrição",
     yaxis_title="Soma (%)",
     legend_title="Descrição",
 )
 
-fig.update_yaxes(ticksuffix="%")
+fig_bar.update_yaxes(
+    ticksuffix="%",
+    tickformat=".2f"
+)
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig_bar, use_container_width=True)
 
-
-
-
-# Grafico de linhas 
-
+# -------------------------------------------------
+# Gráfico de linhas (evolução por ano)
+# -------------------------------------------------
+df_linha = (
+    df_filtrado
+    .groupby(["Ano", "Descricao"], as_index=False)["Valor"]
+    .sum()
+)
 
 fig_linhas = px.line(
-    df_filtrado,
+    df_linha,
     x="Ano",
     y="Valor",
     color="Descricao",
@@ -85,6 +122,11 @@ fig_linhas.update_layout(
     legend_title="Descrição",
 )
 
-fig_linhas.update_yaxes(ticksuffix="%")
+fig_linhas.update_yaxes(
+    ticksuffix="%",
+    tickformat=".2f"
+)
+
+fig_linhas.update_xaxes(dtick=1)
 
 st.plotly_chart(fig_linhas, use_container_width=True)
