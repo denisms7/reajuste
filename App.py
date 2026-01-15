@@ -35,31 +35,50 @@ df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
 # Garantir tipo correto do ano
 df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 
+
+df.loc[df["Descricao"] == "Variação do IPCA", "Ano"] = df.loc[df["Descricao"] == "Variação do IPCA", "Ano"] + 1
+
 # -------------------------------------------------
 # Filtrar período
 # -------------------------------------------------
+st.sidebar.subheader("🎯 Filtros", divider=True)
+
+ano_min = int(df["Ano"].min())
+ano_max = int(df["Ano"].max())
+
+ano_inicio, ano_fim = st.sidebar.slider(
+    "Selecione o intervalo de anos",
+    min_value=ano_min,
+    max_value=ano_max,
+    value=(2019, 2025),
+    step=1,
+)
+
+
 df_filtrado = df.loc[
-    (df["Ano"] >= 2019) & (df["Ano"] <= 2025)
+    (df["Ano"] >= ano_inicio) & (df["Ano"] <= ano_fim)
 ]
 
 # -------------------------------------------------
 # Exibir dados tratados (com formatação visual)
 # -------------------------------------------------
-st.sidebar.subheader("🎯 Filtros")
 
-opcoes_descricao = ["Todos Dados"] + sorted(
-    df_filtrado["Descricao"].dropna().unique().tolist()
+
+opcoes_descricao = sorted(
+    df["Descricao"].dropna().unique().tolist()
 )
 
-descricao_selecionada = st.sidebar.selectbox(
+descricoes_selecionadas = st.sidebar.multiselect(
     "Descrição",
     options=opcoes_descricao,
-    index=0
+    default=[],
+    placeholder="Todos Dados",
 )
 
-if descricao_selecionada != "Todos Dados":
+# Se nenhuma descrição for selecionada, mantém todos os dados
+if descricoes_selecionadas:
     df_filtrado = df_filtrado[
-        df_filtrado["Descricao"] == descricao_selecionada
+        df_filtrado["Descricao"].isin(descricoes_selecionadas)
     ]
 
 
@@ -84,6 +103,8 @@ st.dataframe(
     use_container_width=True,
 )
 
+
+
 # -------------------------------------------------
 # Gráfico de barras (soma por descrição)
 # -------------------------------------------------
@@ -101,7 +122,7 @@ fig_bar = px.bar(
     color="Descricao",
     text_auto=".2f",
     title="Acumulados dos Reajustes",
-    subtitle="IPCA - 2019 a 2025<br>Salarios 2020 a 2025",
+    subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
 )
 
 fig_bar.update_layout(
@@ -133,7 +154,7 @@ fig_linhas = px.line(
     color="Descricao",
     markers=True,
     title="Evolução dos Reajustes (2020–2025)",
-    subtitle="IPCA - 2019 a 2025<br>Salarios 2020 a 2025",
+    subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
 )
 
 fig_linhas.update_layout(
@@ -150,3 +171,49 @@ fig_linhas.update_yaxes(
 fig_linhas.update_xaxes(dtick=1)
 
 st.plotly_chart(fig_linhas, use_container_width=True)
+
+
+
+st.info(
+    """
+    **📌 Critério de ajuste do IPCA no ano de referência**
+
+    O índice de **Variação do IPCA** utilizado neste painel refere-se ao
+    **ano de apuração da inflação**, enquanto o **reajuste salarial**
+    ocorre **no ano subsequente**.
+
+    Para tornar a análise mais didática e alinhada à realidade do reajuste
+    salarial, foi adotado o seguinte critério:
+
+    • O **IPCA de um determinado ano (ex.: 2019)** é considerado como
+      referência para o **reajuste aplicado no ano seguinte (ex.: 2020)**.
+
+    Dessa forma, neste painel:
+    - O IPCA originalmente apurado em **2019** é apresentado como
+      **IPCA de 2020**;
+    - O IPCA de **2020** é apresentado como **2021**, e assim sucessivamente.
+
+    Esse ajuste garante que o índice inflacionário esteja associado ao
+    **mesmo ano em que o salário foi efetivamente reajustado**, permitindo
+    uma comparação mais clara e coerente entre **inflação e reajuste
+    salarial**.
+    """
+)
+
+# Exportar dados filtrados
+def dataframe_to_csv(dataframe: pd.DataFrame) -> bytes:
+    return dataframe.to_csv(
+        index=False,
+        sep=";",
+        decimal=",",
+        encoding="utf-8-sig"
+    ).encode("utf-8-sig")
+
+st.sidebar.subheader("Exportar Dados", divider=True)
+
+st.sidebar.download_button(
+    label="📥 Dados Brutos",
+    data=dataframe_to_csv(df),
+    file_name="Reajustes.csv",
+    mime="text/csv",
+)
