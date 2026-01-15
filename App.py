@@ -210,7 +210,7 @@ df_merge = df_agrupado2.merge(
     suffixes=("", "_Total")
 )
 
-df_merge = df_merge.sort_values(by="Valor_Total", ascending=False)
+df_merge = df_merge.sort_values(by=["Valor_Total", "Ano"], ascending=False)
 
 
 fig_bar2 = px.bar(
