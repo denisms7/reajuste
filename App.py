@@ -2,27 +2,31 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+
 # -------------------------------------------------
 # Configuração da página
 # -------------------------------------------------
 st.set_page_config(
-    page_title="Reajustes Salariais",
+    page_title="Reposição Salarial",
     page_icon="🧑🏻‍💼",
     layout="wide"
 )
 
-st.title("📊 Reajustes Salariais")
+st.title("📊 Reposição Salarial")
 st.write("Análise de dados salarial regional")
+
 
 # -------------------------------------------------
 # Carregar dados
 # -------------------------------------------------
 df = pd.read_excel("data/dados.xlsx")
 
-# -------------------------------------------------
-# Tratamento da coluna Valor (SEM arredondar dados)
-# -------------------------------------------------
+df = df.dropna(subset=["Descricao"])
+
+df["Descricao"] = df["Descricao"].astype(str)
 df["Valor"] = df["Valor"].astype(str)
+
+df[["Fonte", "Outros"]] = df[["Fonte", "Outros"]].fillna("")
 
 df["Valor"] = (
     df["Valor"]
@@ -31,12 +35,11 @@ df["Valor"] = (
 )
 
 df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
-
-# Garantir tipo correto do ano
 df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 
 
-df.loc[df["Descricao"] == "Variação do IPCA", "Ano"] = df.loc[df["Descricao"] == "Variação do IPCA", "Ano"] + 1
+df.loc[df["Descricao"] == "IPCA", "Ano"] = df.loc[df["Descricao"] == "IPCA", "Ano"] + 1
+
 
 # -------------------------------------------------
 # Filtrar período
@@ -62,8 +65,6 @@ df_filtrado = df.loc[
 # -------------------------------------------------
 # Exibir dados tratados (com formatação visual)
 # -------------------------------------------------
-
-
 opcoes_descricao = sorted(
     df["Descricao"].dropna().unique().tolist()
 )
@@ -93,50 +94,16 @@ st.dataframe(
         ),
         "Fonte": st.column_config.LinkColumn(
             "Fonte",
-            display_text="🔗 Abrir"
+            display_text="🔗 Abrir",
         ),
         "Outros": st.column_config.LinkColumn(
             "Outros",
-            display_text="📄 Documento"
+            display_text="📄 Documento",
         ),
     },
-    use_container_width=True,
+    width="stretch",
 )
 
-
-
-# -------------------------------------------------
-# Gráfico de barras (soma por descrição)
-# -------------------------------------------------
-df_agrupado = (
-    df_filtrado
-    .groupby("Descricao", as_index=False)["Valor"]
-    .sum()
-    .sort_values(by="Valor", ascending=False)
-)
-
-fig_bar = px.bar(
-    df_agrupado,
-    x="Descricao",
-    y="Valor",
-    color="Descricao",
-    text_auto=".2f",
-    title="Acumulados dos Reajustes",
-    subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
-)
-
-fig_bar.update_layout(
-    xaxis_title="Descrição",
-    yaxis_title="Soma (%)",
-    legend_title="Descrição",
-)
-
-fig_bar.update_yaxes(
-    ticksuffix="%",
-    tickformat=".2f"
-)
-
-st.plotly_chart(fig_bar, use_container_width=True)
 
 # -------------------------------------------------
 # Gráfico de linhas (evolução por ano)
@@ -170,10 +137,46 @@ fig_linhas.update_yaxes(
 
 fig_linhas.update_xaxes(dtick=1)
 
-st.plotly_chart(fig_linhas, use_container_width=True)
+st.plotly_chart(fig_linhas, width="stretch")
 
 
+# -------------------------------------------------
+# Gráfico de barras (soma por descrição)
+# -------------------------------------------------
+df_agrupado = (
+    df_filtrado
+    .groupby("Descricao", as_index=False)["Valor"]
+    .sum()
+    .sort_values(by="Valor", ascending=False)
+)
 
+fig_bar = px.bar(
+    df_agrupado,
+    x="Descricao",
+    y="Valor",
+    color="Descricao",
+    text_auto=".2f",
+    title="Acumulados dos Reajustes",
+    subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
+)
+
+fig_bar.update_layout(
+    xaxis_title="Descrição",
+    yaxis_title="Soma (%)",
+    legend_title="Descrição",
+)
+
+fig_bar.update_yaxes(
+    ticksuffix="%",
+    tickformat=".2f"
+)
+
+st.plotly_chart(fig_bar, width="stretch")
+
+
+# -------------------------------------------------
+# Informações adicionais
+# -------------------------------------------------
 st.info(
     """
     **📌 Critério de ajuste do IPCA no ano de referência**
@@ -200,7 +203,10 @@ st.info(
     """
 )
 
-# Exportar dados filtrados
+
+# -------------------------------------------------
+# Exportar dados
+# -------------------------------------------------
 def dataframe_to_csv(dataframe: pd.DataFrame) -> bytes:
     return dataframe.to_csv(
         index=False,
@@ -209,11 +215,22 @@ def dataframe_to_csv(dataframe: pd.DataFrame) -> bytes:
         encoding="utf-8-sig"
     ).encode("utf-8-sig")
 
+
 st.sidebar.subheader("Exportar Dados", divider=True)
+
 
 st.sidebar.download_button(
     label="📥 Dados Brutos",
     data=dataframe_to_csv(df),
     file_name="Reajustes.csv",
     mime="text/csv",
+)
+
+
+# -------------------------------------------------
+# Rodapé
+# -------------------------------------------------
+st.markdown(
+    "<p style='text-align: center;'>Desenvolvido por Denis Muniz Silva</p>",
+    unsafe_allow_html=True,
 )
