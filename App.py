@@ -202,11 +202,18 @@ df_agrupado2 = (
     .sum()
 )
 
-df_agrupado2 = df_agrupado2.sort_values(by="Valor", ascending=False)
+df_merge = df_agrupado2.merge(
+    df_agrupado,
+    on="Descricao",
+    how="left",
+    suffixes=("", "_Total")
+)
+
+df_merge = df_merge.sort_values(by="Valor_Total", ascending=False)
 
 
 fig_bar2 = px.bar(
-    df_agrupado2,
+    df_merge,
     x="Descricao",
     y="Valor",
     color="Descricao",
