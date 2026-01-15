@@ -83,7 +83,7 @@ if descricoes_selecionadas:
     ]
 
 
-st.subheader("📄 Dados tratados")
+st.subheader("📄 Dados Tratados")
 
 st.dataframe(
     df_filtrado,
