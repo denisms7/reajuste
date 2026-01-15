@@ -40,6 +40,7 @@ df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 
 df.loc[df["Descricao"] == "IPCA", "Ano"] = df.loc[df["Descricao"] == "IPCA", "Ano"] + 1
 
+df = df.drop(columns=["Outros"])
 
 # -------------------------------------------------
 # Filtrar período
