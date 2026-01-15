@@ -292,7 +292,7 @@ def dataframe_to_csv(dataframe: pd.DataFrame) -> bytes:
     ).encode("utf-8-sig")
 
 
-st.sidebar.subheader("Exportar Dados", divider=True)
+st.sidebar.subheader("📦 Exportar Dados", divider=True)
 
 
 st.sidebar.download_button(
