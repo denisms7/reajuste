@@ -121,7 +121,7 @@ fig_linhas = px.line(
     y="Valor",
     color="Descricao",
     markers=True,
-    title="Evolução dos Reajustes (2020–2025)",
+    title="Reajustes",
     subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
 )
 
