@@ -135,6 +135,15 @@ fig_linhas.update_yaxes(
     tickformat=".2f"
 )
 
+fig_linhas.update_traces(
+    hovertemplate=(
+        "<b>%{fullData.name}</b><br>"
+        "Ano: %{x}<br>"
+        "Valor: %{y:.2f}%"
+        "<extra></extra>"
+    )
+)
+
 fig_linhas.update_xaxes(dtick=1)
 
 st.plotly_chart(fig_linhas, width="stretch")
@@ -171,7 +180,66 @@ fig_bar.update_yaxes(
     tickformat=".2f"
 )
 
+fig_bar.update_traces(
+    textposition="inside",
+    texttemplate="%{y:.2f}%",
+    hovertemplate=(
+        "<b>%{x}</b><br>"
+        "Valor: %{y:.2f}%"
+        "<extra></extra>"
+    )
+)
+
 st.plotly_chart(fig_bar, width="stretch")
+
+
+# -------------------------------------------------
+# Gráfico de barras composição
+# -------------------------------------------------
+df_agrupado2 = (
+    df_filtrado
+    .groupby(["Descricao", "Ano"], as_index=False)["Valor"]
+    .sum()
+)
+
+df_agrupado2 = df_agrupado2.sort_values(by="Valor", ascending=False)
+
+
+fig_bar2 = px.bar(
+    df_agrupado2,
+    x="Descricao",
+    y="Valor",
+    color="Descricao",
+    text_auto=".2f",
+    title="Composição do Acúmulo<br>",
+    subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
+    custom_data=["Ano"],
+)
+
+fig_bar2.update_traces(
+    textposition="inside",
+    texttemplate="%{y:.2f}%",
+    hovertemplate=(
+        "<b>%{x}</b><br>"
+        "Ano: %{customdata[0]}<br>"
+        "Valor: %{y:.2f}%"
+        "<extra></extra>"
+    )
+)
+
+fig_bar2.update_layout(
+    xaxis_title="Descrição",
+    yaxis_title="Soma (%)",
+    legend_title="Ano",
+)
+
+fig_bar2.update_yaxes(
+    ticksuffix="%",
+    tickformat=".2f"
+)
+
+st.plotly_chart(fig_bar2, use_container_width=True)
+
 
 
 # -------------------------------------------------
