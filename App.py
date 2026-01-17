@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
+from map.map import Mapa
 
 # -------------------------------------------------
 # Configuração da página
@@ -13,7 +13,8 @@ st.set_page_config(
 )
 
 st.title("📊 Reposição Salarial")
-st.write("Análise de dados salarial regional")
+st.subheader("Análise de dados salarial regional")
+st.info("📌 Todos os componentes deste painel são interativos")
 
 
 # -------------------------------------------------
@@ -63,6 +64,7 @@ df_filtrado = df.loc[
     (df["Ano"] >= ano_inicio) & (df["Ano"] <= ano_fim)
 ]
 
+
 # -------------------------------------------------
 # Exibir dados tratados (com formatação visual)
 # -------------------------------------------------
@@ -83,27 +85,7 @@ if descricoes_selecionadas:
         df_filtrado["Descricao"].isin(descricoes_selecionadas)
     ]
 
-
-st.subheader("📄 Dados Tratados")
-
-st.dataframe(
-    df_filtrado,
-    column_config={
-        "Valor": st.column_config.NumberColumn(
-            "Valor (%)",
-            format="%.2f"
-        ),
-        "Fonte": st.column_config.LinkColumn(
-            "Fonte",
-            display_text="🔗 Abrir",
-        ),
-        "Outros": st.column_config.LinkColumn(
-            "Outros",
-            display_text="📄 Documento",
-        ),
-    },
-    width="stretch",
-)
+df_tratado = df_filtrado[["Descricao", "Ano", "Valor", "Fonte"]]
 
 
 # -------------------------------------------------
@@ -147,8 +129,6 @@ fig_linhas.update_traces(
 
 fig_linhas.update_xaxes(dtick=1)
 
-st.plotly_chart(fig_linhas, width="stretch")
-
 
 # -------------------------------------------------
 # Gráfico de barras (soma por descrição)
@@ -191,8 +171,6 @@ fig_bar.update_traces(
     )
 )
 
-st.plotly_chart(fig_bar, width="stretch")
-
 
 # -------------------------------------------------
 # Gráfico de barras composição
@@ -219,7 +197,7 @@ fig_bar2 = px.bar(
     y="Valor",
     color="Descricao",
     text_auto=".2f",
-    title="Composição do Acúmulo<br>",
+    title="Composição do Acúmulo",
     subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
     custom_data=["Ano"],
 )
@@ -238,7 +216,7 @@ fig_bar2.update_traces(
 fig_bar2.update_layout(
     xaxis_title="Descrição",
     yaxis_title="Soma (%)",
-    legend_title="Ano",
+    legend_title="Descrição",
 )
 
 fig_bar2.update_yaxes(
@@ -246,7 +224,58 @@ fig_bar2.update_yaxes(
     tickformat=".2f"
 )
 
-st.plotly_chart(fig_bar2, use_container_width=True)
+
+# -------------------------------------------------
+# GERAR PAGINA
+# -------------------------------------------------
+opcao = st.segmented_control(
+    "Visualização",
+    options=["📄 Dados Tratados", "🗺️ Municípios Selecionados"],
+    default="📄 Dados Tratados",
+)
+
+if opcao == "🗺️ Municípios Selecionados":
+    fig_mapa = Mapa(df_filtrado)
+    st.plotly_chart(fig_mapa, width="stretch")
+else:
+    st.dataframe(
+        df_tratado,
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Descricao": st.column_config.TextColumn(
+                "Descrição"
+            ),
+            "Ano": st.column_config.NumberColumn(
+                "Ano"
+            ),
+            "Valor": st.column_config.NumberColumn(
+                "Valor (%)",
+                format="%.2f",
+            ),
+            "Fonte": st.column_config.LinkColumn(
+                "Fonte",
+                display_text="🔗 Abrir",
+            ),
+        },
+    )
+
+st.plotly_chart(fig_linhas, width="stretch")
+
+
+
+opcao2 = st.segmented_control(
+    "Visualização",
+    options=["📈 Acumulados dos Reajustes", "🧩 Composição do Acúmulo"],
+    default="📈 Acumulados dos Reajustes",
+)
+
+
+if opcao2 == "📈 Acumulados dos Reajustes":
+    st.plotly_chart(fig_bar, width="stretch")
+else:
+    st.plotly_chart(fig_bar2, use_container_width=True)
+
 
 
 
@@ -306,6 +335,7 @@ st.sidebar.download_button(
 # -------------------------------------------------
 # Rodapé
 # -------------------------------------------------
+
 st.markdown(
     "<p style='text-align: center;'>Desenvolvido por Denis Muniz Silva</p>",
     unsafe_allow_html=True,
