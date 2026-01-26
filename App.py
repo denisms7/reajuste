@@ -330,13 +330,3 @@ st.sidebar.download_button(
     file_name="Reajustes.csv",
     mime="text/csv",
 )
-
-
-# -------------------------------------------------
-# Rodapé
-# -------------------------------------------------
-
-st.markdown(
-    "<p style='text-align: center;'>Desenvolvido por Denis Muniz Silva</p>",
-    unsafe_allow_html=True,
-)
