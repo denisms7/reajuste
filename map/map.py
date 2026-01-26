@@ -15,7 +15,7 @@ def Mapa(df_filtrado):
     if {"cod_ibge", "Descricao"}.issubset(df_filtrado.columns):
 
         df_mapa = (
-            df_filtrado[["cod_ibge", "Descricao"]]
+            df_filtrado[["cod_ibge", "Descricao", "Populacao"]]
             .dropna(subset=["cod_ibge"])
             .drop_duplicates()
             .assign(dummy=1)  # coluna técnica
@@ -34,7 +34,7 @@ def Mapa(df_filtrado):
                 featureidkey="properties.id",
                 color="dummy",
                 hover_name="Descricao",
-                hover_data={},
+                hover_data={"Populacao": True, "dummy": False, "cod_ibge": False},
                 color_continuous_scale=["#2a9d8f", "#2a9d8f"],
                 mapbox_style="carto-positron",
                 opacity=0.7,
@@ -42,7 +42,6 @@ def Mapa(df_filtrado):
 
             fig_mapa.update_layout(
                 margin=dict(r=0, t=0, l=0, b=0),
-
                 height=600,
                 coloraxis_showscale=False,  # remove legenda
             )
@@ -58,7 +57,7 @@ def Mapa(df_filtrado):
             )
 
             fig_mapa.update_traces(
-                hovertemplate="<b>%{hovertext}</b><extra></extra>"
+                hovertemplate="<b>%{hovertext}</b><br>População: %{customdata[0]:,.0f}<extra></extra>"
             )
 
         except Exception as e:
@@ -66,6 +65,5 @@ def Mapa(df_filtrado):
 
     else:
         return st.info("ℹ️ Necessário possuir as colunas 'cod_ibge' e 'Descricao'")
-
 
     return fig_mapa
