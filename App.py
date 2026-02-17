@@ -20,28 +20,36 @@ st.info("📌 Todos os componentes deste painel são interativos")
 # -------------------------------------------------
 # Carregar dados
 # -------------------------------------------------
-df = pd.read_excel("data/dados.xlsx")
+@st.cache_data
+def load_data():
+    df = pd.read_excel("data/dados.xlsx")
 
-df = df.dropna(subset=["Descricao"])
+    df = df.dropna(subset=["Descricao"])
 
-df["Descricao"] = df["Descricao"].astype(str)
-df["Valor"] = df["Valor"].astype(str)
+    df["Descricao"] = df["Descricao"].astype(str)
+    df["Valor"] = df["Valor"].astype(str)
 
-df[["Fonte", "Outros"]] = df[["Fonte", "Outros"]].fillna("")
+    df[["Fonte", "Outros"]] = df[["Fonte", "Outros"]].fillna("")
 
-df["Valor"] = (
-    df["Valor"]
-    .str.replace("%", "", regex=False)
-    .str.replace(",", ".", regex=False)
-)
+    df["Valor"] = (
+        df["Valor"]
+        .str.replace("%", "", regex=False)
+        .str.replace(",", ".", regex=False)
+    )
 
-df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
-df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
+    df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
+    df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 
 
-df.loc[df["Descricao"] == "IPCA", "Ano"] = df.loc[df["Descricao"] == "IPCA", "Ano"] + 1
+    df.loc[df["Descricao"] == "IPCA", "Ano"] = df.loc[df["Descricao"] == "IPCA", "Ano"] + 1
 
-df = df.drop(columns=["Outros"])
+    df = df.drop(columns=["Outros"])
+
+    return df
+
+
+with st.spinner("⌛ Carregando dados..."):
+    df = load_data()
 
 # -------------------------------------------------
 # Filtrar período
