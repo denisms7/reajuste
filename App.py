@@ -12,9 +12,14 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📊 Reposição Salarial")
+
+st.title("🧑🏻‍💼 Reposição Salarial")
 st.subheader("Análise de dados salarial regional")
-st.info("📌 Todos os componentes deste painel são interativos")
+
+
+if "toast_mostrado" not in st.session_state:
+    st.toast("Todos os componentes deste painel são interativos")
+    st.session_state.toast_mostrado = True
 
 
 # -------------------------------------------------
@@ -60,7 +65,7 @@ ano_min = int(df["Ano"].min())
 ano_max = int(df["Ano"].max())
 
 ano_inicio, ano_fim = st.sidebar.slider(
-    "Selecione o intervalo de anos",
+    "Intervalo de anos:",
     min_value=ano_min,
     max_value=ano_max,
     value=(ano_min, 2025),
@@ -81,7 +86,7 @@ opcoes_descricao = sorted(
 )
 
 descricoes_selecionadas = st.sidebar.multiselect(
-    "Descrição",
+    "Descrição:",
     options=opcoes_descricao,
     default=[],
     placeholder="Todos Dados",
@@ -237,9 +242,9 @@ fig_bar2.update_yaxes(
 # GERAR PAGINA
 # -------------------------------------------------
 opcao = st.segmented_control(
-    "Visualização",
-    options=["📄 Dados Tratados", "🗺️ Municípios Selecionados"],
-    default="📄 Dados Tratados",
+    "Visualização:",
+    options=["📄 Fonte de Dados", "🗺️ Municípios Selecionados"],
+    default="📄 Fonte de Dados",
 )
 
 if opcao == "🗺️ Municípios Selecionados":
@@ -273,7 +278,7 @@ st.plotly_chart(fig_linhas, width="stretch")
 
 
 opcao2 = st.segmented_control(
-    "Visualização",
+    "Visualização:",
     options=["📈 Acumulados dos Reajustes", "🧩 Composição do Acúmulo"],
     default="📈 Acumulados dos Reajustes",
 )
@@ -292,27 +297,25 @@ else:
 # -------------------------------------------------
 st.info(
     """
-    **📌 Critério de ajuste do IPCA no ano de referência**
+    **📌 Critério de vinculação do IPCA ao ano do reajuste**
 
-    O índice de **Variação do IPCA** utilizado neste painel refere-se ao
-    **ano de apuração da inflação**, enquanto o **reajuste salarial**
-    ocorre **no ano subsequente**.
+    O índice de variação do IPCA apresentado neste painel refere-se
+    ao **ano de apuração da inflação**, enquanto o **reajuste salarial**
+    ocorre **no exercício seguinte**.
 
-    Para tornar a análise mais didática e alinhada à realidade do reajuste
-    salarial, foi adotado o seguinte critério:
+    Para alinhar a análise ao ano em que o reajuste foi efetivamente aplicado,
+    adotou-se o seguinte critério:
 
-    • O **IPCA de um determinado ano (ex.: 2019)** é considerado como
-      referência para o **reajuste aplicado no ano seguinte (ex.: 2020)**.
+    - O **IPCA apurado em determinado ano (ex.: 2019)** é considerado
+      como referência para o **reajuste concedido no ano subsequente (ex.: 2020)**.
 
-    Dessa forma, neste painel:
-    - O IPCA originalmente apurado em **2019** é apresentado como
-      **IPCA de 2020**;
-    - O IPCA de **2020** é apresentado como **2021**, e assim sucessivamente.
+    Assim, neste painel:
+    - O IPCA originalmente apurado em **2019** é exibido como **IPCA de 2020**;
+    - O IPCA de **2020** é exibido como **2021**, e assim sucessivamente.
 
-    Esse ajuste garante que o índice inflacionário esteja associado ao
-    **mesmo ano em que o salário foi efetivamente reajustado**, permitindo
-    uma comparação mais clara e coerente entre **inflação e reajuste
-    salarial**.
+    Esse procedimento assegura que o índice inflacionário esteja associado
+    ao **mesmo exercício financeiro do reajuste**, proporcionando uma
+    comparação mais coerente entre **inflação** e **reajuste salarial**.
     """
 )
 
