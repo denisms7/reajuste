@@ -98,7 +98,7 @@ if descricoes_selecionadas:
         df_filtrado["Descricao"].isin(descricoes_selecionadas)
     ]
 
-df_tratado = df_filtrado[["Descricao", "Ano", "Valor", "Fonte"]]
+df_tratado = df_filtrado[["Descricao", "Ano", "Valor", "Ato", "Fonte"]]
 
 
 # -------------------------------------------------
