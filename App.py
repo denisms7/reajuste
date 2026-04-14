@@ -68,7 +68,7 @@ ano_inicio, ano_fim = st.sidebar.slider(
     "Intervalo de anos:",
     min_value=ano_min,
     max_value=ano_max,
-    value=(ano_min, 2025),
+    value=(ano_min, ano_max),
     step=1,
 )
 
@@ -287,7 +287,7 @@ opcao2 = st.segmented_control(
 if opcao2 == "📈 Acumulados dos Reajustes":
     st.plotly_chart(fig_bar, width="stretch")
 else:
-    st.plotly_chart(fig_bar2, use_container_width=True)
+    st.plotly_chart(fig_bar2, width='stretch')
 
 
 
