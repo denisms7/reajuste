@@ -18,7 +18,7 @@ st.subheader("Análise de dados salarial regional")
 
 
 if "toast_mostrado" not in st.session_state:
-    st.toast("Todos os componentes deste painel são interativos")
+    st.toast("ℹ️ Todos os componentes deste painel são interativos")
     st.session_state.toast_mostrado = True
 
 
