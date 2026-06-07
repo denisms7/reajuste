@@ -278,14 +278,14 @@ else:
 
 opcao_linhas = st.segmented_control(
     "Visualização:",
-    options=["Reajustes", "Média", "Mínimo", "Máximo"],
-    default="Reajustes",
+    options=["📈 Reajustes", "〰️ Média", "⬇️ Mínimo", "⬆️ Máximo"],
+    default="📈 Reajustes",
 )
 
-if opcao_linhas == "Reajustes":
+if opcao_linhas == "📈 Reajustes":
     st.plotly_chart(fig_linhas, width="stretch")
 
-elif opcao_linhas == "Média":
+elif opcao_linhas == "〰️ Média":
     df_media = (
         df_filtrado
         .groupby("Ano", as_index=False)["Valor"]
@@ -308,7 +308,7 @@ elif opcao_linhas == "Média":
     )
     st.plotly_chart(fig_media, width="stretch")
 
-elif opcao_linhas == "Mínimo":
+elif opcao_linhas == "⬇️ Mínimo":
     df_min = (
         df_filtrado
         .groupby("Ano", as_index=False)["Valor"]
@@ -331,7 +331,7 @@ elif opcao_linhas == "Mínimo":
     )
     st.plotly_chart(fig_min, width="stretch")
 
-elif opcao_linhas == "Máximo":
+elif opcao_linhas == "⬆️ Máximo":
     df_max = (
         df_filtrado
         .groupby("Ano", as_index=False)["Valor"]
