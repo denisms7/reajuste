@@ -248,7 +248,9 @@ opcao = st.segmented_control(
     default="📄 Fonte de Dados",
 )
 
-if opcao == "🗺️ Municípios Selecionados":
+if opcao is None:
+    st.warning("⚠️ Selecione um tipo de visualização para exibir o conteúdo.")
+elif opcao == "🗺️ Municípios Selecionados":
     fig_mapa = Mapa(df_filtrado)
     st.plotly_chart(fig_mapa, width="stretch")
 else:
@@ -281,7 +283,9 @@ opcao_linhas = st.segmented_control(
     default="📈 Reajustes",
 )
 
-if opcao_linhas == "📈 Reajustes":
+if opcao_linhas is None:
+    st.warning("⚠️ Selecione um tipo de visualização para exibir o gráfico.")
+elif opcao_linhas == "📈 Reajustes":
     st.plotly_chart(fig_linhas, width="stretch")
 
 elif opcao_linhas == "〰️ Média":
@@ -359,7 +363,9 @@ opcao2 = st.segmented_control(
     default="📈 Acumulados dos Reajustes",
 )
 
-if opcao2 == "📈 Acumulados dos Reajustes":
+if opcao2 is None:
+    st.warning("⚠️ Selecione um tipo de visualização para exibir o gráfico.")
+elif opcao2 == "📈 Acumulados dos Reajustes":
     st.plotly_chart(fig_bar, width="stretch")
 else:
     st.plotly_chart(fig_bar2, width='stretch')
