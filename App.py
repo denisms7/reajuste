@@ -104,6 +104,8 @@ df_tratado = df_filtrado[["Descricao", "Ano", "Valor", "Ato", "Fonte"]]
 # -------------------------------------------------
 # Gráfico de linhas (evolução por ano)
 # -------------------------------------------------
+
+
 df_linha = (
     df_filtrado
     .groupby(["Ano", "Descricao"], as_index=False)["Valor"]
@@ -273,7 +275,84 @@ else:
         },
     )
 
-st.plotly_chart(fig_linhas, width="stretch")
+
+opcao_linhas = st.segmented_control(
+    "Visualização:",
+    options=["Reajustes", "Média", "Mínimo", "Máximo"],
+    default="Reajustes",
+)
+
+if opcao_linhas == "Reajustes":
+    st.plotly_chart(fig_linhas, width="stretch")
+
+elif opcao_linhas == "Média":
+    df_media = (
+        df_filtrado
+        .groupby("Ano", as_index=False)["Valor"]
+        .mean()
+        .rename(columns={"Valor": "Média"})
+    )
+    fig_media = px.line(
+        df_media,
+        x="Ano",
+        y="Média",
+        markers=True,
+        title="Média Anual dos Reajustes",
+        subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
+    )
+    fig_media.update_layout(xaxis_title="Ano", yaxis_title="Média (%)")
+    fig_media.update_yaxes(ticksuffix="%", tickformat=".2f")
+    fig_media.update_xaxes(dtick=1)
+    fig_media.update_traces(
+        hovertemplate="Ano: %{x}<br>Média: %{y:.2f}%<extra></extra>"
+    )
+    st.plotly_chart(fig_media, width="stretch")
+
+elif opcao_linhas == "Mínimo":
+    df_min = (
+        df_filtrado
+        .groupby("Ano", as_index=False)["Valor"]
+        .min()
+        .rename(columns={"Valor": "Mínimo"})
+    )
+    fig_min = px.line(
+        df_min,
+        x="Ano",
+        y="Mínimo",
+        markers=True,
+        title="Mínimo Anual dos Reajustes",
+        subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
+    )
+    fig_min.update_layout(xaxis_title="Ano", yaxis_title="Mínimo (%)")
+    fig_min.update_yaxes(ticksuffix="%", tickformat=".2f")
+    fig_min.update_xaxes(dtick=1)
+    fig_min.update_traces(
+        hovertemplate="Ano: %{x}<br>Mínimo: %{y:.2f}%<extra></extra>"
+    )
+    st.plotly_chart(fig_min, width="stretch")
+
+elif opcao_linhas == "Máximo":
+    df_max = (
+        df_filtrado
+        .groupby("Ano", as_index=False)["Valor"]
+        .max()
+        .rename(columns={"Valor": "Máximo"})
+    )
+    fig_max = px.line(
+        df_max,
+        x="Ano",
+        y="Máximo",
+        markers=True,
+        title="Máximo Anual dos Reajustes",
+        subtitle=f"Periodo: {ano_inicio} - {ano_fim}",
+    )
+    fig_max.update_layout(xaxis_title="Ano", yaxis_title="Máximo (%)")
+    fig_max.update_yaxes(ticksuffix="%", tickformat=".2f")
+    fig_max.update_xaxes(dtick=1)
+    fig_max.update_traces(
+        hovertemplate="Ano: %{x}<br>Máximo: %{y:.2f}%<extra></extra>"
+    )
+    st.plotly_chart(fig_max, width="stretch")
 
 
 
