@@ -45,7 +45,6 @@ def load_data():
     df["Valor"] = pd.to_numeric(df["Valor"], errors="coerce") * 100
     df["Ano"] = pd.to_numeric(df["Ano"], errors="coerce")
 
-
     df.loc[df["Descricao"] == "IPCA", "Ano"] = df.loc[df["Descricao"] == "IPCA", "Ano"] + 1
 
     df = df.drop(columns=["Outros"])
@@ -354,21 +353,16 @@ elif opcao_linhas == "⬆️ Máximo":
     )
     st.plotly_chart(fig_max, width="stretch")
 
-
-
 opcao2 = st.segmented_control(
     "Visualização:",
     options=["📈 Acumulados dos Reajustes", "🧩 Composição do Acúmulo"],
     default="📈 Acumulados dos Reajustes",
 )
 
-
 if opcao2 == "📈 Acumulados dos Reajustes":
     st.plotly_chart(fig_bar, width="stretch")
 else:
     st.plotly_chart(fig_bar2, width='stretch')
-
-
 
 
 # -------------------------------------------------
